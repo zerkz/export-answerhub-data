@@ -1,19 +1,13 @@
-const axios = require('axios');
+#!/usr/bin/env node
 const cli = require('commander');
 const colors = require('colors');
-const Json2csvParser = require('json2csv').Parser;
-
-const csvParser = new Json2csvParser({
-  flatten: true,
-});
-const fs = require('fs');
-
+const { getQuestionDataToCSV } = require('./lib');
 
 function parseList(val) {
   return val.split(',');
 }
 
-function errorAndExit(msg) {
+function errorAndExitWithHelp(msg) {
   console.error(colors.red(msg));
   cli.help();
 }
@@ -48,61 +42,18 @@ cli.version('1.0.0')
   })
   .parse(process.argv);
 // validate
-if (!host) errorAndExit('No host was provided. Please provide the hostname of your Answerhub server. Ex. apidocs.cloud.answerhub.com');
-if (!username) errorAndExit('No username was provided');
-if (!password) errorAndExit('No password was provided');
-if (start !== undefined && isNaN(start)) errorAndExit('Start time could not be parsed. Ensure it is in ISO-8061 format.');
-if (end !== undefined && isNaN(end)) errorAndExit('End time could not be parsed. Ensure it is in ISO-8061 format.');
-if (start >= end) errorAndExit('Start time must be before the end time.');
+if (!host) errorAndExitWithHelp('No host was provided. Please provide the hostname of your Answerhub server. Ex. apidocs.cloud.answerhub.com');
+if (!username) errorAndExitWithHelp('No username was provided');
+if (!password) errorAndExitWithHelp('No password was provided');
+if (start !== undefined && isNaN(start)) errorAndExitWithHelp('Start time could not be parsed. Ensure it is in ISO-8061 format.');
+if (end !== undefined && isNaN(end)) errorAndExitWithHelp('End time could not be parsed. Ensure it is in ISO-8061 format.');
+if (start >= end) errorAndExitWithHelp('Start time must be before the end time.');
 
-// prepare URL/Query
-const requestURL = new URL(`https://${host}/services/v2/question.json`);
-requestURL.searchParams.append('pageSize', cli.pageSize);
-
-if (cli.space) requestURL.searchParams.append('space', cli.space);
-if (cli.topics) requestURL.searchParams.append('topics', cli.topics.join(','));
-
-let questionList = [];
-
-const reqConfig = {
-  url: requestURL.href,
-  method: 'get',
-  auth: {
-    username,
-    password,
-  },
-  responseType: 'json',
-  validateStatus: false,
+const options = {
+  pageSize: cli.pageSize,
 };
 
-function genCallQuestionListPaginated(page) {
-  requestURL.searchParams.set('page', page);
-  reqConfig.url = requestURL.href;
-  return axios(reqConfig);
-}
+if (cli.space) options.space = cli.space;
+if (cli.topics) options.topics = cli.topics.join(',');
 
-axios(reqConfig) // get first page.
-  .then((resp) => {
-    questionList = questionList.concat(resp.data.list);
-    const paginatedRequests = [];
-    for (let i = 2; i <= resp.data.pageCount; i += 1) {
-      paginatedRequests.push(genCallQuestionListPaginated(i));
-    }
-    return Promise.all(paginatedRequests);
-  })
-  .then((responses) => {
-    responses.forEach((resp) => {
-      if (resp.status === 200) {
-        questionList = questionList.concat(resp.data.list);
-      } else {
-        console.error(colors.red(`${resp.config.url} returned status code: ${resp.status}`));
-      }
-    });
-    const csv = csvParser.parse(questionList);
-    const csvFilename = `data_export${Date.now()}.csv`;
-    fs.writeFileSync(csvFilename, csv);
-    console.log(colors.green(`Wrote ${csvFilename} to disk.`));
-  }).catch((err) => {
-    console.log('error');
-    console.log(err);
-  });
+getQuestionDataToCSV(host, username, password, options);

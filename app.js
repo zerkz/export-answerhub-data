@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const cli = require('commander');
 const colors = require('colors');
-const { getQuestionDataToCSV } = require('./lib');
+const { getQuestionDataToFile, FILE_FORMATS } = require('./lib');
 
 function parseList(val) {
   return val.split(',');
@@ -10,6 +10,7 @@ function parseList(val) {
 function errorAndExitWithHelp(msg) {
   console.error(colors.red(msg));
   cli.help();
+  process.exit();
 }
 
 let host;
@@ -23,7 +24,7 @@ cli.version('1.0.0')
   .option('-t, --topics <topics>', 'A comma separated list of topics to filter questions by. If multiple topics are supplied, the question must be ALL topics to be returned.', parseList)
   .option('-s, --space <space>', 'Filter by questions belonging to a certain space. ')
   .option('-p, --page-size <pageSize>', 'The page size to use for each request. Lower it if the tool seems to fail or be slow.', parseInt, 15)
-  .option('-f, --file-type [format]', 'Export the data in a particular format')
+  .option('-f, --file-type <format>', `Export the data in a particular format (default is csv). \n\t Formats available: ${FILE_FORMATS.join(',')}`)
   .action((hostVal, usernameVal, passwordVal, startTime, endTime) => {
     host = hostVal;
     username = usernameVal;
@@ -55,5 +56,8 @@ const options = {
 
 if (cli.space) options.space = cli.space;
 if (cli.topics) options.topics = cli.topics.join(',');
+if (cli.fileType && !FILE_FORMATS.includes(cli.fileType)) {
+  errorAndExitWithHelp('Invalid File Format provided.');
+}
 
-getQuestionDataToCSV(host, username, password, options);
+getQuestionDataToFile(host, username, password, options);

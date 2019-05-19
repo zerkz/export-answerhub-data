@@ -8,6 +8,8 @@ const csvParser = new Json2csvParser({
   flatten: true,
 });
 
+const FILE_FORMATS = ['csv', 'json'];
+
 const generateReqConfig = (host, username, password, options) => {
   const opts = options || {};
   const requestURL = new URL(`https://${host}/services/v2/question.json`);
@@ -49,7 +51,8 @@ const getQuestions = (reqConfig) => {
     });
 };
 
-const getQuestionDataToCSV = (host, username, password, options) => {
+
+const getQuestionDataToFile = (host, username, password, options) => {
   const reqConfig = generateReqConfig(host, username, password, options);
   let questionList = [];
   getQuestions(reqConfig)
@@ -61,10 +64,20 @@ const getQuestionDataToCSV = (host, username, password, options) => {
           console.error(colors.red(`${resp.config.url} returned status code: ${resp.status}`));
         }
       });
-      const csv = csvParser.parse(questionList);
-      const csvFilename = `data_export${Date.now()}.csv`;
-      fs.writeFileSync(csvFilename, csv);
-      console.log(colors.green(`Wrote ${csvFilename} to disk.`));
+      let fileName = options.fileName || `data_export${Date.now()}`;
+      fileName += `.${options.format}`;
+      switch (options.format) {
+        case 'csv':
+          fs.writeFileSync(fileName, csvParser.parse(questionList));
+          break;
+        case 'json':
+          fs.writeFileSync(fileName, JSON.stringify(questionList));
+          break;
+        default:
+          throw new Error('Unknown Format Passed into getQuestionDataToFile.');
+      }
+
+      console.log(colors.green(`Wrote ${fileName} to disk.`));
     }).catch((err) => {
       console.error('error');
       console.error(err);
@@ -72,7 +85,8 @@ const getQuestionDataToCSV = (host, username, password, options) => {
 };
 
 module.exports = {
-  getQuestionDataToCSV,
+  getQuestionDataToFile,
   getQuestions,
   generateReqConfig,
-}
+  FILE_FORMATS,
+};

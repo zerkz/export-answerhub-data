@@ -2,6 +2,8 @@ version: 2
 jobs:
   build:
     working_directory: ~/app
+    orbs:
+      codecov: codecov/codecov
     docker:
       - image: circleci/node:10
     steps:
@@ -19,16 +21,9 @@ jobs:
           paths:
             - ./node_modules
       - run:
-          name: test
-          command: npm test
-      - run:
-          name: code-coverage
-          command: 'nyc report --reporter=text-lcov'
+          name: save-lcov-coverage
+          command: 'npm run save-lcov-coverage'
+      - codecov/upload:
+          file: {{ coverage_report_filepath }}
       - store_artifacts:
-          path: test-results.xml
-          prefix: tests
-      - store_artifacts:
-          path: coverage
-          prefix: coverage
-      - store_test_results:
-          path: test-results.xml
+          path: lcov_coverage

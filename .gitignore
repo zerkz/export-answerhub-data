@@ -1,3 +1,6 @@
+#code coverage
+lcov_coverage
+
 # Logs
 logs
 *.log

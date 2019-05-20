@@ -1,9 +1,9 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.0.2
 jobs:
   build:
     working_directory: ~/app
-    orbs:
-      codecov: codecov/codecov
     docker:
       - image: circleci/node:10
     steps:
@@ -21,9 +21,12 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: nyc-coverage
+          command: npm run coverage
+      - run:
           name: save-lcov-coverage
-          command: 'npm run save-lcov-coverage'
-      - codecov/upload:
-          file: {{ coverage_report_filepath }}
+          command: npm run save-lcov-coverage
       - store_artifacts:
           path: lcov_coverage
+      - codecov/upload:
+          file: lcov_coverage

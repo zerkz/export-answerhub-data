@@ -5,6 +5,7 @@
 Export Answerhub Question data using the REST API
 
 ## Usage
+```
 Usage: app [options] <host> <username> <password> [start] [end]
 
 Options:
@@ -21,3 +22,4 @@ Examples:
   2008-09-15
   2008-09-15T15:53:00
   2008-09-15T15:53:00+05:00
+```

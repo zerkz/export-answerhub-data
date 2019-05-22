@@ -51,9 +51,6 @@ const getQuestions = (reqConfig) => {
     });
 };
 
-
-
-
 const filterQuestionsWithinDateRange = (questions, start, end) => {
   if (end) {
     return questions.filter((x) => {

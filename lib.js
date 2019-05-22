@@ -52,6 +52,19 @@ const getQuestions = (reqConfig) => {
 };
 
 
+
+
+const filterQuestionsWithinDateRange = (questions, start, end) => {
+  if (end) {
+    return questions.filter((x) => {
+      const creationDate = new Date(x.creationDate);
+      return (creationDate >= start && creationDate <= end);
+    });
+  }
+  return null;
+};
+
+
 const getQuestionDataToFile = (host, username, password, options) => {
   const reqConfig = generateReqConfig(host, username, password, options);
   let questionList = [];
@@ -64,9 +77,13 @@ const getQuestionDataToFile = (host, username, password, options) => {
           console.error(colors.red(`${resp.config.url} returned status code: ${resp.status}`));
         }
       });
+
+      if (options.start) {
+        filterQuestionsWithinDateRange(questionList, options.start, options.end);
+      }
       let fileName = options.fileName || `data_export${Date.now()}`;
-      fileName += `.${options.format}`;
-      switch (options.format) {
+      fileName += `.${options.fileType}`;
+      switch (options.fileType) {
         case 'csv':
           fs.writeFileSync(fileName, csvParser.parse(questionList));
           break;
@@ -74,7 +91,7 @@ const getQuestionDataToFile = (host, username, password, options) => {
           fs.writeFileSync(fileName, JSON.stringify(questionList));
           break;
         default:
-          throw new Error('Unknown Format Passed into getQuestionDataToFile.');
+          throw new Error(`Unknown Format Passed into getQuestionDataToFile : format - ${options.fileType}`);
       }
 
       console.log(colors.green(`Wrote ${fileName} to disk.`));
@@ -89,4 +106,5 @@ module.exports = {
   getQuestions,
   generateReqConfig,
   FILE_FORMATS,
+  filterQuestionsWithinDateRange,
 };

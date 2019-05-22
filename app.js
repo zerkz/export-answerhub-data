@@ -52,6 +52,7 @@ if (start >= end) errorAndExitWithHelp('Start time must be before the end time.'
 
 const options = {
   pageSize: cli.pageSize,
+  fileType: cli.fileType || 'csv',
 };
 
 if (cli.space) options.space = cli.space;

@@ -1,5 +1,8 @@
-#code coverage
+# code coverage
 lcov_coverage
+
+# default named data exports
+data_export*
 
 # Logs
 logs

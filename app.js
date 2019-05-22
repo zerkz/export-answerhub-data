@@ -61,4 +61,6 @@ if (cli.fileType && !FILE_FORMATS.includes(cli.fileType)) {
   errorAndExitWithHelp('Invalid File Format provided.');
 }
 
-getQuestionDataToFile(host, username, password, options);
+getQuestionDataToFile(host, username, password, options).then(
+  fileName => console.log(colors.green(`Wrote ${fileName} to disk.`)),
+).catch(err => console.log(colors.red(err)));

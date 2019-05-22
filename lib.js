@@ -1,7 +1,6 @@
 const fs = require('fs');
 
 const axios = require('axios');
-const colors = require('colors');
 const Json2csvParser = require('json2csv').Parser;
 
 const csvParser = new Json2csvParser({
@@ -58,25 +57,28 @@ const filterQuestionsWithinDateRange = (questions, start, end) => {
       return (creationDate >= start && creationDate <= end);
     });
   }
-  return null;
+  return questions.filter((x) => {
+    const creationDate = new Date(x.creationDate);
+    return (creationDate >= start);
+  });
 };
 
 
 const getQuestionDataToFile = (host, username, password, options) => {
   const reqConfig = generateReqConfig(host, username, password, options);
   let questionList = [];
-  getQuestions(reqConfig)
+  return getQuestions(reqConfig)
     .then((responses) => {
       responses.forEach((resp) => {
         if (resp.status === 200) {
           questionList = questionList.concat(resp.data.list);
         } else {
-          console.error(colors.red(`${resp.config.url} returned status code: ${resp.status}`));
+          throw new Error(`Answerhub API Call ${resp.config.url} returned HTTP status code: ${resp.status}`);
         }
       });
 
       if (options.start) {
-        filterQuestionsWithinDateRange(questionList, options.start, options.end);
+        questionList = filterQuestionsWithinDateRange(questionList, options.start, options.end);
       }
       let fileName = options.fileName || `data_export${Date.now()}`;
       fileName += `.${options.fileType}`;
@@ -90,18 +92,14 @@ const getQuestionDataToFile = (host, username, password, options) => {
         default:
           throw new Error(`Unknown Format Passed into getQuestionDataToFile : format - ${options.fileType}`);
       }
-
-      console.log(colors.green(`Wrote ${fileName} to disk.`));
-    }).catch((err) => {
-      console.error('error');
-      console.error(err);
+      return Promise.resolve(fileName);
     });
 };
 
 module.exports = {
-  getQuestionDataToFile,
-  getQuestions,
   generateReqConfig,
+  getQuestions,
+  getQuestionDataToFile,
   FILE_FORMATS,
   filterQuestionsWithinDateRange,
 };

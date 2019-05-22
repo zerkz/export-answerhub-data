@@ -1,5 +1,6 @@
 # code coverage
 lcov_coverage
+coverage
 
 # default named data exports
 data_export*

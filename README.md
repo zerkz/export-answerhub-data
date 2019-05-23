@@ -2,9 +2,13 @@
 [![CircleCI](https://circleci.com/gh/zerkz/export-answerhub-data/tree/master.svg?style=svg)](https://circleci.com/gh/zerkz/export-answerhub-data/tree/master)
 [![codecov](https://codecov.io/gh/zerkz/export-answerhub-data/branch/master/graph/badge.svg)](https://codecov.io/gh/zerkz/export-answerhub-data)
 
-Export Answerhub Question data using the REST API
+Export question data from Answerhub using this CLI! 
 
-## Usage
+Can generate data reports in CSV or JSON format! 
+
+Filter by space, topics, and question creation date!
+
+## CLI How To
 ```
 Usage: app [options] <host> <username> <password> [start] [end]
 

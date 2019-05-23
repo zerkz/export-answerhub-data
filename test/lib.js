@@ -41,7 +41,7 @@ describe('lib.js', function () {
     });
   });
 
-  describe.only('#getQuestionDataToFile()', () => {
+  describe('#getQuestionDataToFile()', () => {
     let rewireRestore;
     beforeEach(() => {
       fakeWriteFileSync = sinon.stub(fs, 'writeFileSync');

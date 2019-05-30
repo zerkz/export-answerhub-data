@@ -55,6 +55,9 @@ const options = {
   fileType: cli.fileType || 'csv',
 };
 
+if (start) options.start = start;
+if (end) options.end = end;
+
 if (cli.space) options.space = cli.space;
 if (cli.topics) options.topics = cli.topics.join(',');
 if (cli.fileType && !FILE_FORMATS.includes(cli.fileType)) {

@@ -80,6 +80,11 @@ const getQuestionDataToFile = (host, username, password, options) => {
       if (options.start) {
         questionList = filterQuestionsWithinDateRange(questionList, options.start, options.end);
       }
+
+      if (questionList.length === 0) {
+        throw new Error('No questions were found with the provided criteria. Exiting.');
+      }
+
       let fileName = options.fileName || `data_export${Date.now()}`;
       fileName += `.${options.fileType}`;
       switch (options.fileType) {

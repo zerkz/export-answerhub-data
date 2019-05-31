@@ -20,7 +20,11 @@
   "keywords": [
     "answerhub"
   ],
-  "author": "Zack Whipkey",
+  "author": {
+    "name": "Zack Whipkey",
+    "email": "zack.whipkey@gmail.com",
+    "url": "https://zdware.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/zerkz/export-answerhub-data/issues"

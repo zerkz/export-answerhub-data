@@ -8,16 +8,21 @@ Can generate data reports in CSV or JSON format!
 
 Filter by space, topics, and question creation date!
 
+## Install
+
+`npm install -g export-answerhub-data`
+
 ## CLI How To
 ```
-Usage: app [options] <host> <username> <password> [start] [end]
+Usage: export-answerhub-data [options] <host> <username> <password> [start] [end]
 
 Options:
   -V, --version               output the version number
   -t, --topics <topics>       A comma separated list of topics to filter questions by. If multiple topics are supplied, the question must be ALL topics to be returned.
-  -s, --space <space>         Filter by questions belonging to a certain space.
+  -s, --space <space>         Filter by questions belonging to a certain space. 
   -p, --page-size <pageSize>  The page size to use for each request. Lower it if the tool seems to fail or be slow. (default: 15)
-  -f, --file-type [format]    Export the data in a particular format
+  -f, --file-type <format>    Export the data in a particular format (default is csv). 
+  	 Formats available: csv,json
   -h, --help                  output usage information
 
 [start] and [end] represent date range filters.

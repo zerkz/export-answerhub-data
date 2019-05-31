@@ -82,7 +82,7 @@ const getQuestionDataToFile = (host, username, password, options) => {
       }
 
       if (questionList.length === 0) {
-        throw new Error('No questions were found with the provided criteria. Exiting.');
+        return Promise.resolve({ questionsCount: 0 });
       }
 
       let fileName = options.fileName || `data_export${Date.now()}`;
@@ -97,7 +97,10 @@ const getQuestionDataToFile = (host, username, password, options) => {
         default:
           throw new Error(`Unknown Format Passed into getQuestionDataToFile : format - ${options.fileType}`);
       }
-      return Promise.resolve(fileName);
+      return Promise.resolve({
+        fileName,
+        questionsCount: questionList.length,
+      });
     });
 };
 

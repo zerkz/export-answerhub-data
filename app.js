@@ -65,5 +65,12 @@ if (cli.fileType && !FILE_FORMATS.includes(cli.fileType)) {
 }
 
 getQuestionDataToFile(host, username, password, options).then(
-  fileName => console.log(colors.green(`Wrote ${fileName} to disk.`)),
+  (result) => {
+    const { fileName, questionsCount } = result;
+    if (questionsCount > 0) {
+      console.log(colors.green(`Wrote ${questionsCount} question data payloads to ${fileName}.`));
+    } else {
+      console.log(colors.yellow('No questions were found with the given filters.'));
+    }
+  },
 ).catch(err => console.log(colors.red(err)));

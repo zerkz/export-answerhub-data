@@ -54,14 +54,16 @@ describe('lib.js', function () {
     });
 
     it('gets mocked data and mock writes a CSV file', function () {
-      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'csv' }).then((fileName) => {
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'csv' }).then((result) => {
+        const { fileName } = result;
         sinon.assert.calledOnce(fakeGetQuestions);
         sinon.assert.calledOnce(fakeWriteFileSync);
         expect(fileName).to.contain('csv');
       });
     });
     it('gets mocked data and mock writes a JSON file ', function () {
-      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'json' }).then((fileName) => {
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'json' }).then((result) => {
+        const { fileName } = result;
         sinon.assert.calledOnce(fakeGetQuestions);
         sinon.assert.calledOnce(fakeWriteFileSync);
         expect(fileName).to.contain('json');
@@ -77,14 +79,13 @@ describe('lib.js', function () {
     it('gets mocked data, filters the data within date range, and writes the file', function () {
       const start = new Date(1550762617000);
       const end = new Date(1550762619000);
-      console.log(`start - ${start.toUTCString()}`);
-      console.log(`end - ${end.toUTCString()}`);
 
       return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, {
         fileType: 'json',
         start,
         end,
-      }).then((fileName) => {
+      }).then((result) => {
+        const { fileName } = result;
         sinon.assert.calledOnce(fakeGetQuestions);
         sinon.assert.calledOnce(fakeWriteFileSync);
         const writtenData = JSON.parse(fakeWriteFileSync.args[0][1]);
@@ -94,6 +95,22 @@ describe('lib.js', function () {
           return created >= start && created <= end;
         })).to.equals(true);
         expect(fileName).to.contain('json');
+      });
+    });
+
+    it('gets mocked data, filters the data within an insanely early date range which results in no questions, and does not write a file.', function () {
+      const start = new Date(1000);
+      const end = new Date(2000);
+
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, {
+        fileType: 'json',
+        start,
+        end,
+      }).then((result) => {
+        const { questionsCount, fileName } = result;
+        sinon.assert.calledOnce(fakeGetQuestions);
+        expect(fileName).to.equal(undefined);
+        expect(questionsCount).to.equal(0);
       });
     });
   });

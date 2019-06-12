@@ -1,6 +1,6 @@
 {
   "name": "export-answerhub-data",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Export Answerhub Question data using the REST API.",
   "main": "app.js",
   "scripts": {

@@ -2,6 +2,7 @@ const fs = require('fs');
 
 const axios = require('axios');
 const Json2csvParser = require('json2csv').Parser;
+const pAll = require('p-all');
 
 const csvParser = new Json2csvParser({
   flatten: true,
@@ -26,27 +27,29 @@ const generateReqConfig = (host, username, password, options) => {
     responseType: 'json',
     validateStatus: false,
     fullURL: requestURL,
+    timeout: 15000,
   };
   return reqConfig;
 };
 
-const getQuestions = (reqConfig) => {
+const getQuestions = (reqConfig, concurrency) => {
   const config = reqConfig;
   return axios(config) // get first page.
     .then((resp) => {
       const paginatedRequests = [];
       // insert contents of first page as resolved promise.
-      paginatedRequests.push(Promise.resolve(resp));
+      paginatedRequests.push(() => Promise.resolve(resp));
 
       // knowing how many pages remain, call to get contents for each.
       for (let i = 2; i <= resp.data.pageCount; i += 1) {
-        config.fullURL.searchParams.set('page', i);
-        config.url = config.fullURL.href;
-        // add promises for extra page.
-        paginatedRequests.push(axios(config));
+        const pageRequestConfig = { ...config };
+        pageRequestConfig.fullURL.searchParams.set('page', i);
+        pageRequestConfig.url = pageRequestConfig.fullURL.href;
+        // add wrapped (to throttle) promise for extra page. ()
+        paginatedRequests.push(() => (axios(pageRequestConfig)));
       }
       // wait for all promises to complete.
-      return Promise.all(paginatedRequests);
+      return pAll(paginatedRequests, { concurrency });
     });
 };
 
@@ -67,7 +70,7 @@ const filterQuestionsWithinDateRange = (questions, start, end) => {
 const getQuestionDataToFile = (host, username, password, options) => {
   const reqConfig = generateReqConfig(host, username, password, options);
   let questionList = [];
-  return getQuestions(reqConfig)
+  return getQuestions(reqConfig, options.concurrency)
     .then((responses) => {
       responses.forEach((resp) => {
         if (resp.status === 200) {

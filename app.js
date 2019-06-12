@@ -25,6 +25,7 @@ cli.version('1.0.0')
   .option('-s, --space <space>', 'Filter by questions belonging to a certain space. ')
   .option('-p, --page-size <pageSize>', 'The page size to use for each request. Lower it if the tool seems to fail or be slow.', parseInt, 15)
   .option('-f, --file-type <format>', `Export the data in a particular format (default is csv). \n\t Formats available: ${FILE_FORMATS.join(',')}`)
+  .option('-c, --concurrency <concurrency> ', 'Number of concurrent API requests allowed. Lower concurrency == Less Stress on API', parseInt, 10)
   .action((hostVal, usernameVal, passwordVal, startTime, endTime) => {
     host = hostVal;
     username = usernameVal;
@@ -53,6 +54,7 @@ if (start >= end) errorAndExitWithHelp('Start time must be before the end time.'
 const options = {
   pageSize: cli.pageSize,
   fileType: cli.fileType || 'csv',
+  concurrency: cli.concurrency,
 };
 
 if (start) options.start = start;

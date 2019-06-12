@@ -26,6 +26,10 @@ afterEach(() => {
 const DEMO_HOST = 'apidocs.cloud.answerhub.com';
 const DEMO_USER = 'answerhub';
 const DEMO_PASSWORD = 'test123';
+const DEMO_OPTIONS = {
+  fileType: 'csv',
+  concurrency: 10,
+};
 
 let fakeWriteFileSync;
 let fakeGetQuestions;
@@ -54,7 +58,7 @@ describe('lib.js', function () {
     });
 
     it('gets mocked data and mock writes a CSV file', function () {
-      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'csv' }).then((result) => {
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { ...DEMO_OPTIONS, fileType: 'csv' }).then((result) => {
         const { fileName } = result;
         sinon.assert.calledOnce(fakeGetQuestions);
         sinon.assert.calledOnce(fakeWriteFileSync);
@@ -62,7 +66,7 @@ describe('lib.js', function () {
       });
     });
     it('gets mocked data and mock writes a JSON file ', function () {
-      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'json' }).then((result) => {
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { ...DEMO_OPTIONS, fileType: 'json' }).then((result) => {
         const { fileName } = result;
         sinon.assert.calledOnce(fakeGetQuestions);
         sinon.assert.calledOnce(fakeWriteFileSync);
@@ -70,7 +74,7 @@ describe('lib.js', function () {
       });
     });
     it('gets mocked data and throws an exception when given a bad file format.', function () {
-      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { fileType: 'xml' }).then(() => {
+      return lib.getQuestionDataToFile(DEMO_HOST, DEMO_USER, DEMO_PASSWORD, { ...DEMO_OPTIONS, fileType: 'xml' }).then(() => {
         sinon.assert.fail('Did not throw an exception for invalid file format.');
       }).catch((err) => {
         expect(err.message).to.equal('Unknown Format Passed into getQuestionDataToFile : format - xml');
@@ -114,14 +118,16 @@ describe('lib.js', function () {
       });
     });
   });
-
   // integration tests (hit demo API)
+
+  const DEFAULT_INTEGRATION_TIMEOUT = 15000;
+
   describe('#getQuestions()', () => {
     it('INTEGRATION: gets a 1 item response from demo API', function () {
-      this.timeout(20000);
+      this.timeout(DEFAULT_INTEGRATION_TIMEOUT);
       const basicConfig = lib.generateReqConfig(DEMO_HOST, DEMO_USER,
         DEMO_PASSWORD, { pageSize: 15 });
-      return lib.getQuestions(basicConfig).then((resps) => {
+      return lib.getQuestions(basicConfig, 10).then((resps) => {
         const firstResponse = resps[0];
         expect(firstResponse.status).to.equal(200);
         expect(firstResponse.data.list.length).to.be.greaterThan(0);

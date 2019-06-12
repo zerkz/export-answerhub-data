@@ -3,7 +3,7 @@
 [![codecov](https://codecov.io/gh/zerkz/export-answerhub-data/branch/master/graph/badge.svg)](https://codecov.io/gh/zerkz/export-answerhub-data)
 ![david-deps](https://img.shields.io/david/zerkz/export-answerhub-data.svg)
 
-Export question data from Answerhub using this CLI! 
+Export question data from [Answerhub](https://devada.com/answerhub/) using this CLI! 
 
 Can generate data reports in CSV or JSON format! 
 
